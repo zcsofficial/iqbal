@@ -132,14 +132,14 @@ if (!isset($_SESSION['user_id'])) {
             <li class="nav-item">
                 <a class="nav-link" href="#">Settings</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link" onclick="logout()" href="#">Logout</a>
+            </li>
         </ul>
     </div>
 </nav>
 
-<div class="header-bar">
-    <h1>Syncgo Dashboard</h1>
-    <button class="btn btn-logout" onclick="logout()">Logout</button>
-</div>
+
 
 <div class="container">
     <!-- Profile Card -->
