@@ -1,11 +1,30 @@
 <?php
 session_start();
+include('db.php');
 
 // Check if the user is logged in
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
     exit();
 }
+
+// Check for session expiration (30 minutes)
+if (isset($_SESSION['last_activity']) && (time() - $_SESSION['last_activity'] > 1800)) {
+    session_unset();
+    session_destroy();
+    header('Location: login.php');
+    exit();
+}
+$_SESSION['last_activity'] = time();
+
+// Fetch user data from the database
+$user_id = $_SESSION['user_id'];
+$stmt = $conn->prepare("SELECT * FROM users WHERE id = ?");
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$user = $result->fetch_assoc();
+$stmt->close();
 ?>
 
 <!DOCTYPE html>
@@ -41,6 +60,7 @@ if (!isset($_SESSION['user_id'])) {
             border: none;
             border-radius: 20px;
             padding: 5px 15px;
+            transition: background-color 0.3s ease;
         }
         .header-bar .btn-logout:hover {
             background-color: #c9302c;
@@ -54,7 +74,7 @@ if (!isset($_SESSION['user_id'])) {
         .navbar-nav .nav-link:hover {
             color: #d9534f !important;
         }
-        .profile-card {
+        .profile-card, .feature-card {
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -69,13 +89,6 @@ if (!isset($_SESSION['user_id'])) {
             object-fit: cover;
             margin-bottom: 15px;
         }
-        .profile-card h5 {
-            font-size: 22px;
-            margin: 10px 0;
-        }
-        .profile-card p {
-            color: #666;
-        }
         .features-section {
             padding: 40px 20px;
         }
@@ -85,17 +98,11 @@ if (!isset($_SESSION['user_id'])) {
             margin-bottom: 30px;
         }
         .feature-card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .feature-card:hover {
             transform: scale(1.05);
             box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-        }
-        .feature-card .card-body {
-            text-align: center;
         }
         .feature-card i {
             font-size: 40px;
@@ -104,9 +111,6 @@ if (!isset($_SESSION['user_id'])) {
         .feature-card h5 {
             font-size: 18px;
             margin-bottom: 10px;
-        }
-        .feature-card p {
-            color: #666;
         }
     </style>
 </head>
@@ -139,17 +143,15 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 </nav>
 
-
-
 <div class="container">
     <!-- Profile Card -->
     <div class="row justify-content-center">
         <div class="col-md-4">
             <div class="profile-card">
-                <img src="https://via.placeholder.com/100" alt="Default Avatar">
-                <h5>John Doe</h5>
-                <p>Age: 25</p>
-                <p>Email: johndoe@example.com</p>
+                <img src="https://img.freepik.com/free-vector/hand-drawn-marie-curie-illustration_52683-161864.jpg?ga=GA1.1.1097622617.1729950327&semt=ais_hybrid" alt="User Avatar">
+                <h5><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></h5>
+                <p>Age: <?php echo htmlspecialchars($user['age']); ?></p>
+                <p>Email: <?php echo htmlspecialchars($user['email']); ?></p>
             </div>
         </div>
     </div>
@@ -158,60 +160,27 @@ if (!isset($_SESSION['user_id'])) {
     <div class="features-section">
         <h2>Features</h2>
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <i class="fas fa-users text-primary"></i>
-                        <h5>Community Groups</h5>
-                        <p>Connect with like-minded travelers and form communities.</p>
+            <?php
+            $features = [
+                ['icon' => 'fas fa-users text-primary', 'title' => 'Community Groups', 'description' => 'Connect with like-minded travelers and form communities.'],
+                ['icon' => 'fas fa-map-marker-alt text-danger', 'title' => 'Destination Planner', 'description' => 'Plan trips and explore destinations with ease.'],
+                ['icon' => 'fas fa-comments text-success', 'title' => 'Chats', 'description' => 'Stay connected with your group through real-time chat.'],
+                ['icon' => 'fas fa-calendar-alt text-warning', 'title' => 'Event Scheduling', 'description' => 'Organize events and track schedules effortlessly.'],
+                ['icon' => 'fas fa-bell text-info', 'title' => 'Notifications', 'description' => 'Get timely updates and reminders for your plans.'],
+                ['icon' => 'fas fa-user-cog text-secondary', 'title' => 'Profile Management', 'description' => 'Customize your profile and manage preferences.']
+            ];
+            foreach ($features as $feature) {
+                echo '<div class="col-md-4">
+                    <div class="card feature-card">
+                        <div class="card-body">
+                            <i class="' . $feature['icon'] . '"></i>
+                            <h5>' . $feature['title'] . '</h5>
+                            <p>' . $feature['description'] . '</p>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <i class="fas fa-map-marker-alt text-danger"></i>
-                        <h5>Destination Planner</h5>
-                        <p>Plan trips and explore destinations with ease.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <i class="fas fa-comments text-success"></i>
-                        <h5>Chats</h5>
-                        <p>Stay connected with your group through real-time chat.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <i class="fas fa-calendar-alt text-warning"></i>
-                        <h5>Event Scheduling</h5>
-                        <p>Organize events and track schedules effortlessly.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <i class="fas fa-bell text-info"></i>
-                        <h5>Notifications</h5>
-                        <p>Get timely updates and reminders for your plans.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card feature-card">
-                    <div class="card-body">
-                        <i class="fas fa-user-cog text-secondary"></i>
-                        <h5>Profile Management</h5>
-                        <p>Customize your profile and manage preferences.</p>
-                    </div>
-                </div>
-            </div>
+                </div>';
+            }
+            ?>
         </div>
     </div>
 </div>
