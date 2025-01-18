@@ -93,7 +93,7 @@
                 <li class="nav-item"><a class="nav-link" href="#">About</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Destinations</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
-                <li class="nav-item"><a class="nav-link" href="register.php">Join</a></li>
+                <li class="nav-item"><a class="nav-link" href="login.php">Join</a></li>
             </ul>
         </div>
     </div>

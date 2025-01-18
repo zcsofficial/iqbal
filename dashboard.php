@@ -31,12 +31,14 @@ $stmt->close();
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Dashboard - Syncgo</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome for Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -72,7 +74,7 @@ $stmt->close();
             color: white !important;
         }
         .navbar-nav .nav-link:hover {
-            color: #d9534f !important;
+            color: #ff726f !important; /* Adjusted hover color */
         }
         .profile-card, .feature-card {
             background-color: white;
@@ -88,6 +90,7 @@ $stmt->close();
             height: 100px;
             object-fit: cover;
             margin-bottom: 15px;
+            max-width: 100%;
         }
         .features-section {
             padding: 40px 20px;
@@ -99,18 +102,25 @@ $stmt->close();
         }
         .feature-card {
             transition: transform 0.2s, box-shadow 0.2s;
+            margin-bottom: 20px;
         }
         .feature-card:hover {
             transform: scale(1.05);
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
         .feature-card i {
             font-size: 40px;
             margin-bottom: 15px;
+            color: #333;
         }
-        .feature-card h5 {
-            font-size: 18px;
-            margin-bottom: 10px;
+        @media (max-width: 768px) {
+            .header-bar h1 {
+                font-size: 18px;
+            }
+            .header-bar .btn-logout {
+                padding: 5px 10px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -120,21 +130,24 @@ $stmt->close();
 <nav class="navbar navbar-expand-lg">
     <a class="navbar-brand text-white" href="#">Syncgo</a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
+        <span class="navbar-toggler-icon" style="background-color: white;"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
             <li class="nav-item">
-                <a class="nav-link" href="#">Home</a>
+                <a class="nav-link" href="group.php">Groups</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Profile</a>
+                <a class="nav-link" href="community.php">Community</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Messages</a>
+                <a class="nav-link" href="profile.php">Profile</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Settings</a>
+                <a class="nav-link" href="event-scheduling.php">Event Scheduling</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="messages.php">Messages</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" onclick="logout()" href="#">Logout</a>
@@ -162,22 +175,23 @@ $stmt->close();
         <div class="row g-4">
             <?php
             $features = [
-                ['icon' => 'fas fa-users text-primary', 'title' => 'Community Groups', 'description' => 'Connect with like-minded travelers and form communities.'],
-                ['icon' => 'fas fa-map-marker-alt text-danger', 'title' => 'Destination Planner', 'description' => 'Plan trips and explore destinations with ease.'],
-                ['icon' => 'fas fa-comments text-success', 'title' => 'Chats', 'description' => 'Stay connected with your group through real-time chat.'],
-                ['icon' => 'fas fa-calendar-alt text-warning', 'title' => 'Event Scheduling', 'description' => 'Organize events and track schedules effortlessly.'],
-                ['icon' => 'fas fa-bell text-info', 'title' => 'Notifications', 'description' => 'Get timely updates and reminders for your plans.'],
-                ['icon' => 'fas fa-user-cog text-secondary', 'title' => 'Profile Management', 'description' => 'Customize your profile and manage preferences.']
+                ['icon' => 'fas fa-users text-primary', 'title' => 'Community Groups', 'link' => 'group.php'],
+                ['icon' => 'fas fa-map-marker-alt text-danger', 'title' => 'Destination Planner', 'link' => 'destination-planner.php'],
+                ['icon' => 'fas fa-comments text-success', 'title' => 'Chats', 'link' => 'chat.php'],
+                ['icon' => 'fas fa-calendar-alt text-warning', 'title' => 'Event Scheduling', 'link' => 'event-scheduling.php'],
+                ['icon' => 'fas fa-bell text-info', 'title' => 'Notifications', 'link' => 'notifications.php'],
+                ['icon' => 'fas fa-user-cog text-secondary', 'title' => 'Profile Management', 'link' => 'profile.php']
             ];
             foreach ($features as $feature) {
                 echo '<div class="col-md-4">
-                    <div class="card feature-card">
-                        <div class="card-body">
-                            <i class="' . $feature['icon'] . '"></i>
-                            <h5>' . $feature['title'] . '</h5>
-                            <p>' . $feature['description'] . '</p>
+                    <a href="' . $feature['link'] . '" class="text-decoration-none">
+                        <div class="card feature-card">
+                            <div class="card-body">
+                                <i class="' . $feature['icon'] . '"></i>
+                                <h5>' . $feature['title'] . '</h5>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>';
             }
             ?>
